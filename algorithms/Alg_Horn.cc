@@ -5,7 +5,7 @@ using namespace openwbo;
 StatusCode Horn::search() {
   // Here you can control which algorithm is being used!
   // It if useful if we implement different transformations from SAT to MaxHornSAT
-  
+    printSAT();
   return printMaxHornSAT();
 }
 
@@ -57,28 +57,34 @@ StatusCode Horn::printMaxHornSAT(){
   /*
    * Implement the conversion from SAT to MaxHornSAT
    */
+    
+    int hard_weight = maxsat_formula->nVars()*2+1; //hard_weight is number of p_i's and n_i's plus 1
+    int num_vars = 2 * maxsat_formula->nVars(); //two new vars (p and n) for each x
+    int num_clause = num_vars + maxsat_formula->nVars() + maxsat_formula->nHard()+maxsat_formula->nSoft();
     // Print header
     printf("c MaxHornSAT formula\n");
-    printf("p wcnf %d %d %d\n",maxsat_formula->nVars(),maxsat_formula->nHard()+maxsat_formula->nSoft(), maxsat_formula->nSoft()+1);
+    printf("p wcnf %d %d %d\n",num_vars, num_clause, hard_weight);
     
     //The soft clauses that are just p_i and n_i
     for (int i = 0; i < maxsat_formula->nVars() * 2;i++){
-        printf("%d %d %d\n", 1, i+1, 0)
+        printf("%d %d %d\n", 1, i+1, 0);
     }
     
     //The -p_i or -n_i
-    for (int i = 0; i < maxsat_formula->nVars() * 2;i++){
-        printf("%d -%d -%d %d\n",  (maxsat_formula->nVars() * 2) + 1, (2*i)+1, (2*i)+2, 0)
+    for (int i = 0; i < maxsat_formula->nVars();i++){
+        printf("%d -%d -%d %d\n",  hard_weight, (2*i)+1, (2*i)+2, 0);
     }
     // Traverse all hard clauses and print them
-    for (int i = 0; i < maxsat_formula->nHard(); i++){
+    // I'm a bit confused about hard vs soft, since the output is right if I use Soft in this loop, but these are supposedly hard clauses (weight not 1)
+    for (int i = 0; i < maxsat_formula->nSoft(); i++){
         // Clauses are stored in vectors
-        for (int j = 0; j < maxsat_formula->getHardClause(i).clause.size(); j++){
+        printf("%d ",hard_weight);
+        for (int j = 0; j < maxsat_formula->getSoftClause(i).clause.size(); j++){
             // if it has a sign then the variable is negated, e.g. ~x_i
-            if ((sign(maxsat_formula->getHardClause(i).clause[j])))
-                printf("-%d ",(var(maxsat_formula->getHardClause(i).clause[j])*2)+1);
+            if ((sign(maxsat_formula->getSoftClause(i).clause[j])))
+                printf("-%d ",(var(maxsat_formula->getSoftClause(i).clause[j])*2)+1);
             else
-                printf("-%d ",(var(maxsat_formula->getHardClause(i).clause[j])*2)+2);
+                printf("-%d ",(var(maxsat_formula->getSoftClause(i).clause[j])*2)+2);
             // 'var' returns the variable integer that corresponds to that clause
         }
         // end of clause
