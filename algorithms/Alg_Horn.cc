@@ -5,6 +5,7 @@ using namespace openwbo;
 StatusCode Horn::search() {
   // Here you can control which algorithm is being used!
   // It if useful if we implement different transformations from SAT to MaxHornSAT
+    printSAT();
   return printMaxHornSAT();
 }
 
@@ -53,10 +54,10 @@ StatusCode Horn::printSAT(){
 
 StatusCode Horn::printMaxHornSAT1(){
     
-    /* pppppppnnnnnnn
-     * Variant 1: The p_i variables have the same index as the original variables; the n_i variables start with index n+1 (where n is the number variables)
+    // pppppppnnnnnnn
+    //Variant 1: The p_i variables have the same index as the original variables; the n_i variables start with index n+1 (where n is the number variables)
      
-     */
+ 
     
     int hard_weight = maxsat_formula->nVars()*2+1; //hard_weight is number of p_i's and n_i's plus 1
     int num_vars = 2 * maxsat_formula->nVars(); //two new vars (p and n) for each x
@@ -98,11 +99,12 @@ StatusCode Horn::printMaxHornSAT1(){
 
 
 
+
 StatusCode Horn::printMaxHornSAT2(){
     
-    /* nnnnnnppppppp
-     * Variant 2: The n_i variables have the same index as the original variables; the p_i variables start with index n+1 (where n is the number variables
-     */
+    // nnnnnnppppppp
+     // Variant 2: The n_i variables have the same index as the original variables; the p_i variables start with index n+1 (where n is the number variables
+    
     
     int hard_weight = maxsat_formula->nVars()*2+1; //hard_weight is number of p_i's and n_i's plus 1
     int num_vars = 2 * maxsat_formula->nVars(); //two new vars (p and n) for each x
@@ -143,10 +145,10 @@ StatusCode Horn::printMaxHornSAT2(){
 
 StatusCode Horn::printMaxHornSAT3(){
     
-    /* pnpnpnpnpn
-     * Variant 3: Do the following variable mapping: x_1 will get the mapped to p_1 (variable 1) and n_1 (variable 2); x_2 will be mapped to p_2 (variable 3) and n_2 (variable 4); etc.
+    // pnpnpnpnpn
+    //Variant 3: Do the following variable mapping: x_1 will get the mapped to p_1 (variable 1) and n_1 (variable 2); x_2 will be mapped to p_2 (variable 3) and n_2 (variable 4); etc.
      
-     */
+ 
     
     int hard_weight = maxsat_formula->nVars()*2+1; //hard_weight is number of p_i's and n_i's plus 1
     int num_vars = 2 * maxsat_formula->nVars(); //two new vars (p and n) for each x
@@ -189,9 +191,9 @@ StatusCode Horn::printMaxHornSAT3(){
 
 StatusCode Horn::printMaxHornSAT4(){
     
-    /* npnpnpnpnp
-     * "Current translation" but i think its supposed to have ps and ns reversed from current bc variant 3's description is the current one
-     */
+    // npnpnpnpnp
+    //"Current translation" but i think its supposed to have ps and ns reversed from current bc variant 3's description is the current one
+ 
     
     int hard_weight = maxsat_formula->nVars()*2+1; //hard_weight is number of p_i's and n_i's plus 1
     int num_vars = 2 * maxsat_formula->nVars(); //two new vars (p and n) for each x
@@ -227,5 +229,6 @@ StatusCode Horn::printMaxHornSAT4(){
     
     return _UNKNOWN_;
 }
+
 
 
