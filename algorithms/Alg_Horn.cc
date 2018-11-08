@@ -5,8 +5,10 @@ using namespace openwbo;
 StatusCode Horn::search() {
   // Here you can control which algorithm is being used!
   // It if useful if we implement different transformations from SAT to MaxHornSAT
-
-  return printMaxHornSAT();
+    if (option == 0) return printMaxHornSAT1();
+    else if (option == 1) return printMaxHornSAT2();
+    else if (option == 2) return printMaxHornSAT3();
+    else return printMaxHornSAT4();
 }
 
 StatusCode Horn::printSAT(){

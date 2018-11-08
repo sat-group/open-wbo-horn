@@ -19,7 +19,8 @@ namespace openwbo {
 class Horn : public MaxSAT {
 
 public:
-  Horn() {
+  Horn(int opt) {
+      option = opt;
   }
   ~Horn() {
   }
@@ -27,9 +28,15 @@ public:
   StatusCode search();
 
 protected:
+    
+    int option;
   
   StatusCode printSAT();
   StatusCode printMaxHornSAT();
+    StatusCode printMaxHornSAT1();
+    StatusCode printMaxHornSAT2();
+    StatusCode printMaxHornSAT3();
+    StatusCode printMaxHornSAT4();
 
 };
 } // namespace openwbo
