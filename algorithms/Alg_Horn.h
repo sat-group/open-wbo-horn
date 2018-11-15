@@ -22,18 +22,24 @@ public:
   Horn(int opt) {
       option = opt;
   }
+    
+    Horn(MaxSATFormula* mx){
+        maxsat_formula = mx;
+    }
+    
   ~Horn() {
   }
 
   StatusCode search();
+  MaxSATFormula* printMaxHornSAT1();
 
 protected:
     
     int option;
   
   StatusCode printSAT();
+    StatusCode printMaxSAT(MaxSATFormula *mx);
   StatusCode printMaxHornSAT();
-    StatusCode printMaxHornSAT1();
     StatusCode printMaxHornSAT2();
     StatusCode printMaxHornSAT3();
     StatusCode printMaxHornSAT4();

@@ -57,16 +57,24 @@ using namespace openwbo;
   |
   |________________________________________________________________________________________________@*/
 StatusCode MSU3::MSU3_iterative() {
-
-  if (encoding != _CARD_TOTALIZER_) {
-    if(print) {
-      printf("Error: Currently algorithm MSU3 with iterative encoding only "
-             "supports the totalizer encoding.\n");
-      printf("s UNKNOWN\n");
-    }
-    throw MaxSATException(__FILE__, __LINE__, "MSU3 only supports totalizer");
-    return _UNKNOWN_;
-  }
+    
+ /* STEP 1.
+  * - transform the formula into MaxHornSAT
+  * - maxsat_formula has to contain the new modified formula (maxsat_formula will contain the new formula from this point onwards)
+  * - we may want to store the P clauses in a different p_formula (a first version may have the P clauses in maxsat_formula)
+  */
+  // i think it should transform it?
+//  MaxSATFormula *newform = new MaxSATFormula();
+//  newform.setInitialVars(2 * maxsat_formula.nVars());
+//  vec<Lit> clause;
+//
+//
+//
+//  printMaxHornSat1();
+    Horn * horn = new Horn(maxsat_formula);
+    MaxSATFormula* newform = horn->printMaxHornSAT1();
+    delete maxsat_formula;
+    maxsat_formula = newform;
 
   lbool res = l_True;
   initRelaxation();
@@ -82,7 +90,9 @@ StatusCode MSU3::MSU3_iterative() {
     coreMapping[getAssumptionLit(i)] = i;
 
   for (;;) {
-
+      
+    // assumptions are only true for the current SAT call
+    // e.g. x_1, ~x_2
     res = searchSATSolver(solver, assumptions);
     if (res == l_True) {
       nbSatisfiable++;
@@ -93,19 +103,38 @@ StatusCode MSU3::MSU3_iterative() {
       ubCost = newCost;
 
       if (nbSatisfiable == 1) {
-        for (int i = 0; i < objFunction.size(); i++)
+        // checking if the hards clauses are satisfiable
+          for (int i = 0; i < objFunction.size(); i++)
           assumptions.push(~objFunction[i]);
       } else {
+          
+          // for checking satisfiability of a SAT formula:
+          // SAT if m/2 is the optimum bound where m is the number of soft clauses
+          
+          // for the version where the P clauses are not part of the formula:
+          // - check if any clause is unsatisfied by the model
+          // - method to check if a clause is satisfied by a model (maybe take a look at computeCost)
+          
+          /* - STEP 2. refinement
+           * a) add all P clauses that are unsatisfied
+           * b) ... other strategies
+           * - continue the search by adding the some P clauses to the formula (call the SAT solver again)
+           */
+          
+          // If all P clauses are satisfied than we can terminate and report satisfiable
+          // something like this to add a clause to the solver solver->addClause(p_formula->getHardClause(i));
+          
+          // Print some debug information: how many P clauses are not in the formula vs how many are in the formula
         assert(lbCost == newCost);
-        printAnswer(_OPTIMUM_);
-        return _OPTIMUM_;
+        printAnswer(_SATISFIABLE_);
+        return _SATISFIABLE_;
       }
     }
 
     if (res == l_False) {
       lbCost++;
       nbCores++;
-      if (verbosity > 0)
+        // lbCost has the lower bound value
         printf("c LB : %-12" PRIu64 "\n", lbCost);
 
       if (nbSatisfiable == 0) {
@@ -113,13 +142,19 @@ StatusCode MSU3::MSU3_iterative() {
         return _UNSATISFIABLE_;
       }
 
-      if (lbCost == ubCost) {
-        assert(nbSatisfiable > 0);
-        if (verbosity > 0)
-          printf("c LB = UB\n");
-        printAnswer(_OPTIMUM_);
-        return _OPTIMUM_;
-      }
+//      if (lbCost == ubCost) {
+//        assert(nbSatisfiable > 0);
+//        if (verbosity > 0)
+//          printf("c LB = UB\n");
+//        printAnswer(_OPTIMUM_);
+//        return _OPTIMUM_;
+//      }
+        
+        // This assumes that the maxsat_formula contains the MaxHornSAT formula
+        if (lbCost > maxsat_formula->nSoft()/2){
+            printAnswer(_UNSATISFIABLE_);
+            return _UNSATISFIABLE_;
+        }
 
       sumSizeCores += solver->conflict.size();
 

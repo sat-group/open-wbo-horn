@@ -39,6 +39,7 @@
 #include <algorithm>
 #include <map>
 #include <set>
+#include "Alg_Horn.h"
 
 namespace openwbo {
 
