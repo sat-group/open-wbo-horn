@@ -105,6 +105,7 @@ StatusCode Horn::printMaxSAT(MaxSATFormula *mx){
     return _UNKNOWN_;
 }
 
+
 MaxSATFormula* Horn::printMaxHornSAT1(){
     
     // pppppppnnnnnnn
@@ -113,7 +114,7 @@ MaxSATFormula* Horn::printMaxHornSAT1(){
     
     int hard_weight = maxsat_formula->nVars()*2+1; //hard_weight is number of p_i's and n_i's plus 1
     int num_vars = 2 * maxsat_formula->nVars(); //two new vars (p and n) for each x
-    int num_clause = num_vars + maxsat_formula->nVars() + maxsat_formula->nHard()+maxsat_formula->nSoft();
+    int num_clause = num_vars + maxsat_formula->nHard()+maxsat_formula->nSoft();
     // Print header
     printf("c MaxHornSAT formula\n");
     printf("p wcnf %d %d %d\n",num_vars, num_clause, hard_weight);
@@ -137,14 +138,7 @@ MaxSATFormula* Horn::printMaxHornSAT1(){
         printf("%d %d %d\n", 1, i+1, 0);
     }
     
-    //The -p_i or -n_i
-    for (int i = 0; i < maxsat_formula->nVars();i++){
-        clause.clear();
-        clause.push(~mkLit(i));
-        clause.push(~mkLit(i+maxsat_formula->nVars()));
-        newform->addHardClause(clause);
-        printf("%d -%d -%d %d\n",  hard_weight, i+1, i+1+maxsat_formula->nVars(), 0);
-    }
+
     // Traverse all hard clauses and print them
     
     for (int i = 0; i < maxsat_formula->nSoft(); i++){
@@ -175,7 +169,45 @@ MaxSATFormula* Horn::printMaxHornSAT1(){
     return newform;
 }
 
+MaxSATFormula* Horn::pClauses(){
+    
+    // pppppppnnnnnnn
+    //Variant 1: The p_i variables have the same index as the original variables; the n_i variables start with index n+1 (where n is the number variables)
+    
+    
+    int hard_weight = maxsat_formula->nVars()*2+1; //hard_weight is number of p_i's and n_i's plus 1
+    int num_vars = 2 * maxsat_formula->nVars(); //two new vars (p and n) for each x
+    int num_clause = maxsat_formula->nVars();
+    // Print header
+    printf("c MaxHornSAT formula\n");
+    printf("p wcnf %d %d %d\n",num_vars, num_clause, hard_weight);
+    
+    MaxSATFormula *newform = new MaxSATFormula();
+    for (int i = 0; i < num_vars; i++)
+        newform->newVar();
+    
+    newform->setInitialVars(num_vars);
+    newform->setHardWeight(hard_weight);
+    newform->setProblemType(_UNWEIGHTED_);
+    newform->setMaximumWeight(1);
+    
+    vec<Lit> clause;
+    
+    //The -p_i or -n_i
+    for (int i = 0; i < maxsat_formula->nVars();i++){
+        clause.clear();
+        clause.push(~mkLit(i));
+        clause.push(~mkLit(i+maxsat_formula->nVars()));
+        newform->addHardClause(clause);
+        printf("%d -%d -%d %d\n",  hard_weight, i+1, i+1+maxsat_formula->nVars(), 0);
+    }
 
+    
+    printf("cccccccccccc\n");
+    printMaxSAT(newform);
+    
+    return newform;
+}
 
 
 StatusCode Horn::printMaxHornSAT2(){

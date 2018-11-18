@@ -250,6 +250,8 @@ protected:
   // Compute the cost of a model.
   uint64_t computeCostModel(vec<lbool> &currentModel,
                             uint64_t weight = UINT64_MAX);
+  int checkPCost(vec<lbool> &currentModel,
+                              MaxSATFormula* mx);
 
   // Utils for printing
   //

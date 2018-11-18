@@ -32,6 +32,8 @@ public:
 
   StatusCode search();
   MaxSATFormula* printMaxHornSAT1();
+  MaxSATFormula* pClauses();
+
 
 protected:
     

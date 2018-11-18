@@ -73,8 +73,10 @@ StatusCode MSU3::MSU3_iterative() {
 //  printMaxHornSat1();
     Horn * horn = new Horn(maxsat_formula);
     MaxSATFormula* newform = horn->printMaxHornSAT1();
+    MaxSATFormula* pclauses = horn->pClauses();
     delete maxsat_formula;
     maxsat_formula = newform;
+    uint64_t pAdded = 0;
 
   lbool res = l_True;
   initRelaxation();
@@ -90,7 +92,11 @@ StatusCode MSU3::MSU3_iterative() {
     coreMapping[getAssumptionLit(i)] = i;
 
   for (;;) {
-      
+      if(pAdded == pclauses->nHard()) {
+          printAnswer(_SATISFIABLE_);
+          return _SATISFIABLE_;
+          
+      }
     // assumptions are only true for the current SAT call
     // e.g. x_1, ~x_2
     res = searchSATSolver(solver, assumptions);
@@ -101,12 +107,24 @@ StatusCode MSU3::MSU3_iterative() {
       printBound(newCost);
 
       ubCost = newCost;
+      
 
       if (nbSatisfiable == 1) {
         // checking if the hards clauses are satisfiable
           for (int i = 0; i < objFunction.size(); i++)
           assumptions.push(~objFunction[i]);
       } else {
+          int pBad = checkPCost(solver->model, pclauses);
+          if(pBad == -1){
+              assert(lbCost == newCost);
+              printAnswer(_SATISFIABLE_);
+              return _SATISFIABLE_;
+          }
+          else{
+              solver->addClause(pclauses->getHardClause(pBad).clause);
+              pAdded++;
+          }
+          
           
           // for checking satisfiability of a SAT formula:
           // SAT if m/2 is the optimum bound where m is the number of soft clauses
@@ -125,9 +143,9 @@ StatusCode MSU3::MSU3_iterative() {
           // something like this to add a clause to the solver solver->addClause(p_formula->getHardClause(i));
           
           // Print some debug information: how many P clauses are not in the formula vs how many are in the formula
-        assert(lbCost == newCost);
-        printAnswer(_SATISFIABLE_);
-        return _SATISFIABLE_;
+          
+          
+
       }
     }
 

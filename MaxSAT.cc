@@ -196,6 +196,35 @@ uint64_t MaxSAT::computeCostModel(vec<lbool> &currentModel, uint64_t weight) {
   return currentCost;
 }
 
+int MaxSAT::checkPCost(vec<lbool> &currentModel,
+                              MaxSATFormula* mx) {
+    
+    assert(currentModel.size() != 0);
+    int pBad = -1;
+    
+    for (int i = 0; i < mx->nHard(); i++) {
+        bool unsatisfied = true;
+        for (int j = 0; j < mx->getHardClause(i).clause.size(); j++) {
+            
+            assert(var(mx->getHardClause(i).clause[j]) <
+                   currentModel.size());
+            if ((sign(mx->getHardClause(i).clause[j]) &&
+                 currentModel[var(mx->getHardClause(i).clause[j])] ==
+                 l_False) ||
+                (!sign(mx->getHardClause(i).clause[j]) &&
+                 currentModel[var(mx->getHardClause(i).clause[j])] ==
+                 l_True)) {
+                    unsatisfied = false;
+                    pBad = i;
+                    break;
+                }
+        }
+    }
+    
+    return pBad;
+}
+
+
 /*_________________________________________________________________________________________________
   |
   |  isBMO : (cache : bool)  ->  [void]
