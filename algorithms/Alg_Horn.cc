@@ -68,13 +68,13 @@ StatusCode Horn::printMaxSAT(MaxSATFormula *mx){
      */
     
     // Print header
-    printf("p wcnf %d %d %d\n",mx->nVars(),mx->nHard()+mx->nSoft(),mx->getHardWeight());
+    printf("p wcnf %d %d %llu\n",mx->nVars(),mx->nHard()+mx->nSoft(),mx->getHardWeight());
     
     
     // Traverse all hard clauses and print them
     for (int i = 0; i < mx->nHard(); i++){
         // Clauses are stored in vectors
-        printf("%d ",mx->getHardWeight());
+        printf("%llu ",mx->getHardWeight());
         for (int j = 0; j < mx->getHardClause(i).clause.size(); j++){
             // if it has a sign then the variable is negated, e.g. ~x_i
             if ((sign(mx->getHardClause(i).clause[j])))
@@ -89,7 +89,7 @@ StatusCode Horn::printMaxSAT(MaxSATFormula *mx){
     // Traverse all soft clauses and print them
     for (int i = 0; i < mx->nSoft(); i++){
         // Clauses are stored in vectors
-        printf("%d ",mx->getSoftClause(i).weight);
+        printf("%llu ",mx->getSoftClause(i).weight);
         for (int j = 0; j < mx->getSoftClause(i).clause.size(); j++){
             // if it has a sign then the variable is negated, e.g. ~x_i
             if ((sign(mx->getSoftClause(i).clause[j])))

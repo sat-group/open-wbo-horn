@@ -77,6 +77,9 @@ StatusCode MSU3::MSU3_iterative() {
     delete maxsat_formula;
     maxsat_formula = newform;
     uint64_t pAdded = 0;
+    int option = 1; //option 1 => add all p clauses immediately
+    
+    
 
   lbool res = l_True;
   initRelaxation();
@@ -86,13 +89,23 @@ StatusCode MSU3::MSU3_iterative() {
   vec<Lit> currentObjFunction;
   vec<Lit> encodingAssumptions;
   encoder.setIncremental(_INCREMENTAL_ITERATIVE_);
+    
 
   activeSoft.growTo(maxsat_formula->nSoft(), false);
   for (int i = 0; i < maxsat_formula->nSoft(); i++)
     coreMapping[getAssumptionLit(i)] = i;
 
+    //Adding all the p clauses
+  if(option == 1){
+    for(int i = 0; i < pclauses->nHard(); i++){
+        solver->addClause(pclauses->getHardClause(i).clause);
+        pAdded++;
+            
+    }
+  }
+
   for (;;) {
-      if(pAdded == pclauses->nHard()) {
+      if(pAdded == pclauses->nHard() && option == 0) {
           printAnswer(_SATISFIABLE_);
           return _SATISFIABLE_;
           
@@ -113,17 +126,25 @@ StatusCode MSU3::MSU3_iterative() {
         // checking if the hards clauses are satisfiable
           for (int i = 0; i < objFunction.size(); i++)
           assumptions.push(~objFunction[i]);
-      } else {
-          int pBad = checkPCost(solver->model, pclauses);
-          if(pBad == -1){
-              assert(lbCost == newCost);
-              printAnswer(_SATISFIABLE_);
-              return _SATISFIABLE_;
+      }
+      else if(option == 0){
+        int pBad = checkPCost(solver->model, pclauses);
+        if(pBad == -1){
+          assert(lbCost == newCost);
+          printAnswer(_SATISFIABLE_);
+          return _SATISFIABLE_;
           }
           else{
               solver->addClause(pclauses->getHardClause(pBad).clause);
               pAdded++;
+              printf("p %llu\n",pAdded);
           }
+      }
+      else if(option == 1){
+          printAnswer(_SATISFIABLE_);
+          return _SATISFIABLE_;
+          
+      }
           
           
           // for checking satisfiability of a SAT formula:
@@ -146,7 +167,7 @@ StatusCode MSU3::MSU3_iterative() {
           
           
 
-      }
+      
     }
 
     if (res == l_False) {
