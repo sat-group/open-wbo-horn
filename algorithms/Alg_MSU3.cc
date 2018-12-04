@@ -72,13 +72,12 @@ StatusCode MSU3::MSU3_iterative() {
 //
 //  printMaxHornSat1();
     Horn * horn = new Horn(maxsat_formula);
-    MaxSATFormula* newform = horn->printMaxHornSAT1();
+    MaxSATFormula* newform = horn->printMaxHornSAT1(false);
     MaxSATFormula* pclauses = horn->pClauses();
     delete maxsat_formula;
     maxsat_formula = newform;
     uint64_t pAdded = 0;
-    int option = 1; //option 1 => add all p clauses immediately
-    
+    int option = !lazy; //option 1 => add all p clauses immediately
     
 
   lbool res = l_True;
@@ -118,7 +117,7 @@ StatusCode MSU3::MSU3_iterative() {
       uint64_t newCost = computeCostModel(solver->model);
       saveModel(solver->model);
       printBound(newCost);
-
+      
       ubCost = newCost;
       
 
@@ -137,7 +136,7 @@ StatusCode MSU3::MSU3_iterative() {
           else{
               solver->addClause(pclauses->getHardClause(pBad).clause);
               pAdded++;
-              printf("p %llu\n",pAdded);
+              printf("c p clauses %llu / %d\n",pAdded,pclauses->nHard());
           }
       }
       else if(option == 1){

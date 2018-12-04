@@ -31,8 +31,8 @@ public:
   }
 
   StatusCode search();
-  MaxSATFormula* printMaxHornSAT1();
-  MaxSATFormula* pClauses();
+  MaxSATFormula* printMaxHornSAT1(bool verb = false);
+  MaxSATFormula* pClauses(bool verb = false);
 
 
 protected:

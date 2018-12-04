@@ -47,12 +47,13 @@ namespace openwbo {
 class MSU3 : public MaxSAT {
 
 public:
-  MSU3(int verb = _VERBOSITY_MINIMAL_) {
+  MSU3(int verb = _VERBOSITY_MINIMAL_, bool l = true) {
     solver = NULL;
     verbosity = verb;
     incremental_strategy = _INCREMENTAL_ITERATIVE_;
     encoding = _CARD_TOTALIZER_;
     encoder.setCardEncoding(encoding);
+    lazy = l;
   }
   ~MSU3() {
     if (solver != NULL)
@@ -90,6 +91,8 @@ protected:
 
   // Other
   void initRelaxation(); // Relaxes soft clauses.
+
+  bool lazy;
 
   Solver *solver;  // SAT Solver used as a black box.
   Encoder encoder; // Interface for the encoder of constraints to CNF.

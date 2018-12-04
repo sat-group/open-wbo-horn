@@ -107,11 +107,13 @@ int main(int argc, char **argv) {
         "c WARNING: for repeatability, setting FPU to use double precision\n");
 #endif
 
-    BoolOption printmodel("Open-WBO", "print-model", "Print model.\n", true);
+    BoolOption printmodel("Open-WBO", "print-model", "Print model.\n", false);
 
     StringOption printsoft("Open-WBO", "print-unsat-soft", "Print unsatisfied soft claues in the optimal assignment.\n", NULL);
       
-      IntOption horn("Horn encoding","horn","(0=,1=,2=,3=)",0,IntRange(0,3));
+    IntOption horn("Open-WBO","horn","(0=,1=,2=,3=)",0,IntRange(0,3));
+
+    BoolOption lazy("Open-WBO","lazy","Lazy addition of P clauses.\n",true);
 
     IntOption verbosity("Open-WBO", "verbosity",
                         "Verbosity level (0=minimal, 1=more).\n", 0,
@@ -181,7 +183,7 @@ int main(int argc, char **argv) {
       break;
 
     case _ALGORITHM_MSU3_:
-      S = new MSU3(verbosity);
+      S = new MSU3(verbosity, lazy);
       break;
 
     case _ALGORITHM_OLL_:

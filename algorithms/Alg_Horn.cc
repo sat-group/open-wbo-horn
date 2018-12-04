@@ -106,8 +106,7 @@ StatusCode Horn::printMaxSAT(MaxSATFormula *mx){
 }
 
 
-MaxSATFormula* Horn::printMaxHornSAT1(){
-    
+MaxSATFormula* Horn::printMaxHornSAT1(bool verb){
     // pppppppnnnnnnn
     //Variant 1: The p_i variables have the same index as the original variables; the n_i variables start with index n+1 (where n is the number variables)
     
@@ -116,8 +115,8 @@ MaxSATFormula* Horn::printMaxHornSAT1(){
     int num_vars = 2 * maxsat_formula->nVars(); //two new vars (p and n) for each x
     int num_clause = num_vars + maxsat_formula->nHard()+maxsat_formula->nSoft();
     // Print header
-    printf("c MaxHornSAT formula\n");
-    printf("p wcnf %d %d %d\n",num_vars, num_clause, hard_weight);
+    if (verb) printf("c MaxHornSAT formula\n");
+    if (verb) printf("p wcnf %d %d %d\n",num_vars, num_clause, hard_weight);
     
     MaxSATFormula *newform = new MaxSATFormula();
     for (int i = 0; i < num_vars; i++)
@@ -135,7 +134,7 @@ MaxSATFormula* Horn::printMaxHornSAT1(){
         vec<Lit> unit;
         unit.push(mkLit(i));
         newform->addSoftClause(1, unit);
-        printf("%d %d %d\n", 1, i+1, 0);
+        if (verb) printf("%d %d %d\n", 1, i+1, 0);
     }
     
 
@@ -144,32 +143,32 @@ MaxSATFormula* Horn::printMaxHornSAT1(){
     for (int i = 0; i < maxsat_formula->nSoft(); i++){
         // Clauses are stored in vectors
         clause.clear();
-        printf("%d ",hard_weight);
+        if (verb) printf("%d ",hard_weight);
         for (int j = 0; j < maxsat_formula->getSoftClause(i).clause.size(); j++){
             // if it has a sign then the variable is negated, e.g. ~x_i
             if ((sign(maxsat_formula->getSoftClause(i).clause[j]))){
                 clause.push(~mkLit((var(maxsat_formula->getSoftClause(i).clause[j]))));
-                printf("-%d ",(var(maxsat_formula->getSoftClause(i).clause[j]))+1);
+                if (verb) printf("-%d ",(var(maxsat_formula->getSoftClause(i).clause[j]))+1);
             }
             else {
                 clause.push((~mkLit(var(maxsat_formula->getSoftClause(i).clause[j])+maxsat_formula->nVars())));
-                printf("-%d ",(var(maxsat_formula->getSoftClause(i).clause[j]))+1+maxsat_formula->nVars());
+                if (verb) printf("-%d ",(var(maxsat_formula->getSoftClause(i).clause[j]))+1+maxsat_formula->nVars());
             }
             // 'var' returns the variable integer that corresponds to that clause
         }
         // end of clause
         assert (clause.size() > 0);
         newform->addHardClause(clause);
-        printf("0\n");
+        if (verb) printf("0\n");
     }
     
-    printf("cccccccccccc\n");
-    printMaxSAT(newform);
+    if (verb) printf("cccccccccccc\n");
+    if (verb) printMaxSAT(newform);
     
     return newform;
 }
 
-MaxSATFormula* Horn::pClauses(){
+MaxSATFormula* Horn::pClauses(bool verb){
     
     // pppppppnnnnnnn
     //Variant 1: The p_i variables have the same index as the original variables; the n_i variables start with index n+1 (where n is the number variables)
@@ -179,8 +178,9 @@ MaxSATFormula* Horn::pClauses(){
     int num_vars = 2 * maxsat_formula->nVars(); //two new vars (p and n) for each x
     int num_clause = maxsat_formula->nVars();
     // Print header
-    printf("c MaxHornSAT formula\n");
-    printf("p wcnf %d %d %d\n",num_vars, num_clause, hard_weight);
+    printf("c #num_vars= %d\n",num_vars);
+    if (verb) printf("c MaxHornSAT formula\n");
+    if (verb) printf("p wcnf %d %d %d\n",num_vars, num_clause, hard_weight);
     
     MaxSATFormula *newform = new MaxSATFormula();
     for (int i = 0; i < num_vars; i++)
@@ -199,12 +199,12 @@ MaxSATFormula* Horn::pClauses(){
         clause.push(~mkLit(i));
         clause.push(~mkLit(i+maxsat_formula->nVars()));
         newform->addHardClause(clause);
-        printf("%d -%d -%d %d\n",  hard_weight, i+1, i+1+maxsat_formula->nVars(), 0);
+        if (verb) printf("%d -%d -%d %d\n",  hard_weight, i+1, i+1+maxsat_formula->nVars(), 0);
     }
 
     
-    printf("cccccccccccc\n");
-    printMaxSAT(newform);
+    if (verb) printf("cccccccccccc\n");
+    if (verb) printMaxSAT(newform);
     
     return newform;
 }
